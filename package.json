@@ -1,19 +1,19 @@
 {
-  "name": "notion-next",
+  "name": "notion-haiwaidaiyun",
   "version": "4.9.4.2",
-  "homepage": "https://github.com/tangly1024/NotionNext.git",
+  "homepage": "https://github.com/haydonge/Notion-haiwaidaiyun.git",
   "license": "MIT",
   "engines": {
     "node": ">=20"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tangly1024/NotionNext.git"
+    "url": "https://github.com/haydonge/Notion-haiwaidaiyun.git"
   },
   "author": {
-    "name": "tangly",
-    "email": "mail@tangly1024.com",
-    "url": "http://tangly1024.com"
+    "name": "haydonge",
+    "email": "haydonge@github.com",
+    "url": "https://github.com/haydonge"
   },
   "scripts": {
     "dev": "next dev",
@@ -109,7 +109,7 @@
     "axios": ">=0.21.1"
   },
   "bugs": {
-    "url": "https://github.com/tangly/NotionNext/issues",
-    "email": "tlyong1992@hotmail.com"
+    "url": "https://github.com/haydonge/Notion-haiwaidaiyun/issues",
+    "email": "haydonge@github.com"
   }
 }
