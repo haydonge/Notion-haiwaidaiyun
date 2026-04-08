@@ -12,8 +12,8 @@ services:
         - NOTION_PAGE_ID=${NOTION_PAGE_ID}
         - NEXT_PUBLIC_THEME=${NEXT_PUBLIC_THEME:-heo}
     container_name: notion-haiwaidaiyun
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       # Notion 页面配置 - 重要！必须修改
       - NOTION_PAGE_ID=${NOTION_PAGE_ID}
