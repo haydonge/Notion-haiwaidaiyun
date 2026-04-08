@@ -1,0 +1,93 @@
+# Dokploy 部署配置文件
+# 用于在 Dokploy 平台上部署 NotionNext 项目
+
+version: '3.8'
+
+services:
+  notion-next:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NOTION_PAGE_ID=${NOTION_PAGE_ID}
+        - NEXT_PUBLIC_THEME=${NEXT_PUBLIC_THEME:-heo}
+    container_name: notion-haiwaidaiyun
+    ports:
+      - "3000:3000"
+    environment:
+      # Notion 页面配置 - 重要！必须修改
+      - NOTION_PAGE_ID=${NOTION_PAGE_ID}
+      
+      # 主题和语言配置
+      - NEXT_PUBLIC_THEME=${NEXT_PUBLIC_THEME:-heo}
+      - NEXT_PUBLIC_LANG=${NEXT_PUBLIC_LANG:-zh-CN}
+      - NEXT_PUBLIC_SINCE=${NEXT_PUBLIC_SINCE:-2015}
+      
+      # 网站基本信息
+      - NEXT_PUBLIC_AUTHOR=${NEXT_PUBLIC_AUTHOR:-海外代孕}
+      - NEXT_PUBLIC_BIO=${NEXT_PUBLIC_BIO:-海外合法代孕服务}
+      - NEXT_PUBLIC_LINK=${NEXT_PUBLIC_LINK:-https://suprebaby.com}
+      - NEXT_PUBLIC_KEYWORD=${NEXT_PUBLIC_KEYWORD:-代孕官网,海外代孕,合法代孕}
+      
+      # 网站外观
+      - NEXT_PUBLIC_APPEARANCE=${NEXT_PUBLIC_APPEARANCE:-light}
+      - NEXT_PUBLIC_APPEARANCE_DARK_TIME=${NEXT_PUBLIC_APPEARANCE_DARK_TIME:-[18,6]}
+      - NEXT_PUBLIC_FAVICON=${NEXT_PUBLIC_FAVICON:-/favicon.ico}
+      
+      # 功能配置
+      - NEXT_PUBLIC_PSEUDO_STATIC=${NEXT_PUBLIC_PSEUDO_STATIC:-false}
+      - NEXT_PUBLIC_REVALIDATE_SECOND=${NEXT_PUBLIC_REVALIDATE_SECOND:-60}
+      - NEXT_PUBLIC_ENABLE_RSS=${NEXT_PUBLIC_ENABLE_RSS:-true}
+      
+      # 备案信息（如需要）
+      - NEXT_PUBLIC_BEI_AN=${NEXT_PUBLIC_BEI_AN:-}
+      - NEXT_PUBLIC_BEI_AN_LINK=${NEXT_PUBLIC_BEI_AN_LINK:-https://beian.miit.gov.cn/}
+      - NEXT_PUBLIC_BEI_AN_GONGAN=${NEXT_PUBLIC_BEI_AN_GONGAN:-}
+      
+      # 分析统计（可选）
+      - NEXT_PUBLIC_ANALYTICS_GOOGLE_ID=${NEXT_PUBLIC_ANALYTICS_GOOGLE_ID:-}
+      - NEXT_PUBLIC_ANALYTICS_BAIDU_ID=${NEXT_PUBLIC_ANALYTICS_BAIDU_ID:-}
+      - NEXT_PUBLIC_ANALYTICS_51LA_ID=${NEXT_PUBLIC_ANALYTICS_51LA_ID:-}
+      - NEXT_PUBLIC_ANALYTICS_51LA_CK=${NEXT_PUBLIC_ANALYTICS_51LA_CK:-}
+      
+      # 评论系统（可选）
+      - NEXT_PUBLIC_COMMENT_SYSTEM=${NEXT_PUBLIC_COMMENT_SYSTEM:-}
+      - NEXT_PUBLIC_COMMENT_CUSDIS_APP_ID=${NEXT_PUBLIC_COMMENT_CUSDIS_APP_ID:-}
+      - NEXT_PUBLIC_COMMENT_CUSDIS_HOST=${NEXT_PUBLIC_COMMENT_CUSDIS_HOST:-}
+      - NEXT_PUBLIC_COMMENT_TWIKOO_ENV_ID=${NEXT_PUBLIC_COMMENT_TWIKOO_ENV_ID:-}
+      - NEXT_PUBLIC_COMMENT_UTTERRANCES_REPO=${NEXT_PUBLIC_COMMENT_UTTERRANCES_REPO:-}
+      - NEXT_PUBLIC_COMMENT_GITALK_CLIENT_ID=${NEXT_PUBLIC_COMMENT_GITALK_CLIENT_ID:-}
+      - NEXT_PUBLIC_COMMENT_GITALK_CLIENT_SECRET=${NEXT_PUBLIC_COMMENT_GITALK_CLIENT_SECRET:-}
+      
+      # 广告配置（可选）
+      - NEXT_PUBLIC_ADSENSE_GOOGLE_ID=${NEXT_PUBLIC_ADSENSE_GOOGLE_ID:-}
+      - NEXT_PUBLIC_ADSENSE_GOOGLE_SLOT_AUTO=${NEXT_PUBLIC_ADSENSE_GOOGLE_SLOT_AUTO:-}
+      - NEXT_PUBLIC_ADSENSE_GOOGLE_SLOT_IN_ARTICLE=${NEXT_PUBLIC_ADSENSE_GOOGLE_SLOT_IN_ARTICLE:-}
+      
+      # 高级功能（可选）
+      - NEXT_PUBLIC_ALGOLIA_APP_ID=${NEXT_PUBLIC_ALGOLIA_APP_ID:-}
+      - NEXT_PUBLIC_ALGOLIA_SEARCH_ONLY_API_KEY=${NEXT_PUBLIC_ALGOLIA_SEARCH_ONLY_API_KEY:-}
+      - NEXT_PUBLIC_ALGOLIA_INDEX=${NEXT_PUBLIC_ALGOLIA_INDEX:-}
+      
+      # 数据库配置（如需要）
+      - DATABASE_URL=${DATABASE_URL:-}
+      - REDIS_URL=${REDIS_URL:-}
+      
+      # API 配置
+      - API_BASE_URL=${API_BASE_URL:-https://www.notion.so/api/v3}
+      
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.notion-next.rule=Host(\`${DOMAIN:-localhost}\`)"
+      - "traefik.http.routers.notion-next.entrypoints=websecure"
+      - "traefik.http.routers.notion-next.tls.certresolver=letsencrypt"
+      - "traefik.http.services.notion-next.loadbalancer.server.port=3000"
+    volumes:
+      - ./logs:/app/logs  # 日志持久化（可选）
+
+networks:
+  dokploy-network:
+    external: true
