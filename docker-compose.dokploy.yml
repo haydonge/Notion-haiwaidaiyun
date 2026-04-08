@@ -77,17 +77,3 @@ services:
       - API_BASE_URL=${API_BASE_URL:-https://www.notion.so/api/v3}
       
     restart: unless-stopped
-    networks:
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.notion-next.rule=Host(\`${DOMAIN:-localhost}\`)"
-      - "traefik.http.routers.notion-next.entrypoints=websecure"
-      - "traefik.http.routers.notion-next.tls.certresolver=letsencrypt"
-      - "traefik.http.services.notion-next.loadbalancer.server.port=3000"
-    volumes:
-      - ./logs:/app/logs  # 日志持久化（可选）
-
-networks:
-  dokploy-network:
-    external: true
