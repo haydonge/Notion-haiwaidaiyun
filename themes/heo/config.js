@@ -30,9 +30,9 @@ const CONFIG = {
   HEO_HERO_COVER_TITLE: '关键检查项目',
 
   // 英雄区显示三个置顶分类
-  HEO_HERO_CATEGORY_1: { title: '成功案例', url: '/tag/成功案例' },
-  HEO_HERO_CATEGORY_2: { title: '代孕价格', url: '/tag/代孕价格' },
-  HEO_HERO_CATEGORY_3: { title: '代孕国家', url: '/tag/代孕国家' },
+  HEO_HERO_CATEGORY_1: { title: '成功案例', url: '/category/成功案例' },
+  HEO_HERO_CATEGORY_2: { title: '代孕价格', url: '/category/代孕价格' },
+  HEO_HERO_CATEGORY_3: { title: '代孕国家', url: '/category/代孕国家' },
 
   // 英雄区右侧推荐文章标签, 例如 [推荐] , 最多六篇文章; 若留空白''，则推荐最近更新文章
   HEO_HERO_RECOMMEND_POST_TAG: '推荐',
