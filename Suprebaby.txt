@@ -1,0 +1,132 @@
+Dokploy 安装全过程（适用于 Ubuntu / Debian 等 Linux VPS）
+
+一、准备一台服务器（VPS）
+1) 推荐系统（Dokploy 官方测试过的常见系统）：
+   - Ubuntu 24.04/22.04/20.04
+   - Debian 12/11/10
+   - 以及 Fedora/CentOS 等
+2) 最低硬件建议：
+   - 内存：至少 2GB
+   - 硬盘：至少 30GB
+3) 必须开放/空闲端口：
+   - 80（HTTP，Traefik 用）
+   - 443（HTTPS，Traefik 用）
+   - 3000（Dokploy 控制台面板）
+
+重要提醒：
+- 如果 80/443/3000 任意一个端口已经被占用，安装会失败。
+- 你之前遇到过 “Bind for 0.0.0.0:3000 failed: port is already allocated”，这通常是：
+  - Dokploy 面板占用了宿主机 3000
+  - 或者你把业务容器用 ports 映射到了宿主机 3000
+  正确做法是：业务容器用 expose（只暴露容器端口），不要抢宿主机 3000。
+
+二、在服务器上检查端口是否被占用
+1) 连接服务器（任选其一）：
+   - Windows PowerShell：
+     ssh root@你的服务器IP
+   - macOS/Linux：
+     ssh root@你的服务器IP
+
+2) 检查 80/443/3000 是否被占用：
+   - 推荐（通用）：
+     ss -ltnp | egrep ':80|:443|:3000'
+   - 或者：
+     lsof -i :80
+     lsof -i :443
+     lsof -i :3000
+
+如果发现被占用（常见是 Nginx/Apache/Caddy/其它面板）：
+- 先停掉占用的服务再安装 Dokploy。例如：
+  systemctl stop nginx
+  systemctl stop apache2
+  systemctl disable nginx
+  systemctl disable apache2
+
+三、更新系统并安装必要工具
+Ubuntu/Debian：
+  apt update -y
+  apt install -y curl ca-certificates
+
+（可选但推荐）
+  apt install -y git vim htop
+
+四、安装 Dokploy（最简单的一行命令）
+官方安装脚本（会自动安装 Docker，如果系统没有 Docker）：
+  curl -sSL https://dokploy.com/install.sh | sh
+
+安装完成后一般会自动启动 Dokploy（Docker Swarm + Traefik + Dokploy 服务）。
+
+五、放行防火墙（如果你启用了 UFW/防火墙）
+如果你用 UFW：
+  ufw allow 22/tcp
+  ufw allow 80/tcp
+  ufw allow 443/tcp
+  ufw allow 3000/tcp
+  ufw status
+
+如果你用云厂商安全组：
+- 在安全组里放行 80、443、3000 入站
+- 22 只建议对你自己的 IP 放行（更安全）
+
+六、访问 Dokploy 面板并完成初始化
+1) 打开浏览器访问：
+   http://你的服务器IP:3000
+2) 创建 Admin 管理员账号（用户名/邮箱/密码）
+3) 进入面板后，建议尽快给 Dokploy 面板绑定域名并开启 HTTPS（更安全）
+
+注意：
+- 你也可以先用 IP:3000 登录，等域名和证书都配置好了再关闭 IP 访问。
+
+七、（可选）绑定域名并启用 HTTPS（强烈建议）
+思路：
+1) 在域名服务商把域名 A 记录解析到服务器公网 IP
+   - @ -> 服务器IP
+   - www -> 服务器IP
+2) 在 Dokploy 的 Domains/设置里给 Dokploy 面板配置域名 + 证书
+
+八、（可选）关闭 ip:3000 访问（更安全）
+当你已经确认 “面板域名 + HTTPS” 可用后，可以在服务器执行：
+  docker service update --publish-rm "published=3000,target=3000,mode=host" dokploy
+
+重要：
+- 没配置好域名 HTTPS 前不要执行这步，否则你可能会把自己锁在面板外面。
+
+九、更新 Dokploy
+更新到最新版本（官方脚本支持 update）：
+  curl -sSL https://dokploy.com/install.sh | sh -s update
+
+十、安装高级参数（遇到特殊网络/多网卡/云内网冲突时才需要）
+1) 安装指定版本：
+  export DOKPLOY_VERSION=latest
+  curl -sSL https://dokploy.com/install.sh | sh
+
+2) 安装 canary（开发版，不推荐生产）：
+  export DOKPLOY_VERSION=canary
+  curl -sSL https://dokploy.com/install.sh | sh
+
+3) 手动指定 Swarm advertise address（脚本检测不到 IP 时用）：
+  export ADVERTISE_ADDR=你的服务器IP
+  curl -sSL https://dokploy.com/install.sh | sh
+
+4) 自定义 Swarm 默认网段（避免和你服务器/VPC 网段冲突）：
+  export DOCKER_SWARM_INIT_ARGS="--default-addr-pool 172.20.0.0/16 --default-addr-pool-mask-length 24"
+  curl -sSL https://dokploy.com/install.sh | sh
+
+十一、常见安装失败排查（最常见）
+1) 报错：端口被占用（80/443/3000）
+   - 先用 ss/lsof 查是谁占用
+   - 停掉 nginx/apache/caddy/其它面板
+   - 再重新运行安装脚本
+
+2) 报错：docker 命令不存在
+   - 正常情况下安装脚本会自动装 Docker
+   - 如果仍不行，先装 Docker 再重跑脚本
+
+3) 面板打不开（IP:3000 访问不了）
+   - 检查云安全组是否放行 3000
+   - 检查服务器防火墙是否放行 3000
+   - 检查 Dokploy 服务是否在运行：
+     docker service ls
+
+参考（官方文档）：
+- 安装文档：https://docs.dokploy.com/docs/core/installation
